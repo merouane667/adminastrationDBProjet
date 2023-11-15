@@ -1,84 +1,51 @@
--- Création des tables
-CREATE TABLE `Client` (
-  `id` INT PRIMARY KEY,
-  `nom` VARCHAR(255),
-  `prenom` VARCHAR(255)
-);
+-- Création de la base de données
+CREATE DATABASE IF NOT EXISTS Ecommerce;
+USE Ecommerce;
 
-CREATE TABLE `Admin` (
-  `id` INT PRIMARY KEY,
-  `nom` VARCHAR(255),
-  `prenom` VARCHAR(255)
-);
+-- Insertion de données génériques pour tester
+INSERT INTO Client (id, nom, prenom) VALUES (1, 'Client1', 'PrenomClient1');
+INSERT INTO Vendeur (id, nom, prenom) VALUES (1, 'Vendeur1', 'PrenomVendeur1');
+INSERT INTO Boutique (id, nom, vendeur_id) VALUES (1, 'Boutique1', 1);
+INSERT INTO Employe (id, nom, prenom, boutique_id) VALUES (1, 'Employe1', 'PrenomEmploye1', 1);
+INSERT INTO Produit (id, nom, description, boutique_id) VALUES (1, 'Produit1', 'DescriptionProduit1', 1);
+INSERT INTO Commande (id, date, client_id) VALUES (1, '2023-01-01', 1);
+INSERT INTO ProduitCommande (id, produit_id, commande_id) VALUES (1, 1, 1);
 
-CREATE TABLE `SuperAdmin` (
-  `id` INT PRIMARY KEY,
-  `nom` VARCHAR(255),
-  `prenom` VARCHAR(255)
-);
+-- Opérations en tant que Vendeur
 
-CREATE TABLE `Commande` (
-  `id` INT PRIMARY KEY,
-  `date` DATE,
-  `client_id` INT,
-  FOREIGN KEY (`client_id`) REFERENCES `Client` (`id`) ON UPDATE CASCADE
-);
+-- Créer une nouvelle boutique en tant que vendeur
+INSERT INTO Boutique (nom, vendeur_id) VALUES ('NouvelleBoutique', 1);
 
-CREATE TABLE `Vendeur` (
-  `id` INT PRIMARY KEY,
-  `nom` VARCHAR(255),
-  `prenom` VARCHAR(255)
-);
+-- Ajouter un employé à votre boutique
+INSERT INTO Employe (nom, prenom, boutique_id) VALUES ('NouvelEmploye', 'PrenomNouvelEmploye', 2);
 
-CREATE TABLE `Boutique` (
-  `id` INT PRIMARY KEY,
-  `nom` VARCHAR(255),
-  `vendeur_id` INT,
-  FOREIGN KEY (`vendeur_id`) REFERENCES `Vendeur` (`id`) ON UPDATE CASCADE
-);
+-- Ajouter un produit à votre boutique
+INSERT INTO Produit (nom, description, boutique_id) VALUES ('NouveauProduit', 'DescriptionNouveauProduit', 2);
 
-CREATE TABLE `Employe` (
-  `id` INT PRIMARY KEY,
-  `nom` VARCHAR(255),
-  `prenom` VARCHAR(255),
-  `boutique_id` INT,
-  FOREIGN KEY (`boutique_id`) REFERENCES `Boutique` (`id`) ON UPDATE CASCADE
-);
+-- Consulter les commandes liées à votre boutique
+SELECT * FROM Commande WHERE client_id IN (SELECT id FROM Client WHERE id = 1) AND id IN (SELECT commande_id FROM ProduitCommande WHERE produit_id IN (SELECT id FROM Produit WHERE boutique_id = 2));
 
-CREATE TABLE `Produit` (
-  `id` INT PRIMARY KEY,
-  `nom` VARCHAR(255),
-  `description` TEXT,
-  `boutique_id` INT,
-  FOREIGN KEY (`boutique_id`) REFERENCES `Boutique` (`id`) ON UPDATE CASCADE
-);
+-- Opérations en tant que Client
 
-CREATE TABLE `ProduitCommande` (
-  `id` INT PRIMARY KEY,
-  `produit_id` INT,
-  `commande_id` INT,
-  FOREIGN KEY (`produit_id`) REFERENCES `Produit` (`id`) ON UPDATE CASCADE,
-  FOREIGN KEY (`commande_id`) REFERENCES `Commande` (`id`) ON UPDATE CASCADE
-);
+-- Passer une nouvelle commande en tant que client
+INSERT INTO Commande (date, client_id) VALUES ('2023-02-01', 1);
 
--- Opérations en tant que vendeur
--- Exemple : Créer une boutique
-INSERT INTO Boutique (nom, vendeur_id) VALUES ('Boutique Vendeur1', 1);
+-- Ajouter des produits à votre commande
+INSERT INTO ProduitCommande (produit_id, commande_id) VALUES (2, 2);
 
--- Exemple : Ajouter un employé
-INSERT INTO Employe (nom, prenom, boutique_id) VALUES ('Employe1', 'Prenom1', 1);
-
--- Exemple : Créer un produit
-INSERT INTO Produit (nom, description, boutique_id) VALUES ('Produit1', 'Description1', 1);
-
--- Exemple : Consulter les commandes d'un client
+-- Consulter vos commandes
 SELECT * FROM Commande WHERE client_id = 1;
 
--- Opérations en tant que client
--- Exemple : Passer une commande
-INSERT INTO Commande (date, client_id) VALUES (CURRENT_DATE, 1);
--- Insérez ensuite les détails de la commande (ProduitCommande) en fonction des produits que le client a commandés
+-- Opérations en tant que Super Administrateur
 
--- Opérations en tant que super administrateur
--- Exemple : Ajouter un administrateur
-INSERT INTO SuperAdmin (nom, prenom) VALUES ('SuperAdmin1', 'PrenomSuperAdmin1');
+-- Ajouter un nouvel administrateur
+INSERT INTO SuperAdmin (nom, prenom) VALUES ('SuperAdmin2', 'PrenomSuperAdmin2');
+
+-- Consulter toutes les commandes
+SELECT * FROM Commande;
+
+-- Consulter tous les clients
+SELECT * FROM Client;
+
+-- Consulter tous les produits
+SELECT * FROM Produit;
